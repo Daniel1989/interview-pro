@@ -3,20 +3,24 @@ import signal
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from vocode import getenv
 from vocode.helpers import create_streaming_microphone_input_and_speaker_output
 from vocode.logging import configure_pretty_logging
 from vocode.streaming.agent.chat_gpt_agent import ChatGPTAgent
 from vocode.streaming.models.agent import ChatGPTAgentConfig
 from vocode.streaming.models.message import BaseMessage
-from vocode.streaming.models.synthesizer import AzureSynthesizerConfig
+from vocode.streaming.models.synthesizer import AzureSynthesizerConfig, RimeSynthesizerConfig
 from vocode.streaming.models.transcriber import (
     DeepgramTranscriberConfig,
     PunctuationEndpointingConfig,
 )
 from vocode.streaming.streaming_conversation import StreamingConversation
-from vocode.streaming.synthesizer.azure_synthesizer import AzureSynthesizer
-from vocode.streaming.transcriber.deepgram_transcriber import DeepgramTranscriber
+from vocode.streaming.synthesizer.rime_synthesizer import RimeSynthesizer
 
+from vocode.streaming.transcriber.deepgram_transcriber import DeepgramTranscriber
+from dotenv import load_dotenv
+
+load_dotenv()
 configure_pretty_logging()
 
 
@@ -25,11 +29,6 @@ class Settings(BaseSettings):
     Settings for the streaming conversation quickstart.
     These parameters can be configured with environment variables.
     """
-
-    openai_api_key: str = "ENTER_YOUR_OPENAI_API_KEY_HERE"
-    azure_speech_key: str = "ENTER_YOUR_AZURE_KEY_HERE"
-    deepgram_api_key: str = "ENTER_YOUR_DEEPGRAM_API_KEY_HERE"
-
     azure_speech_region: str = "eastus"
 
     # This means a .env file can be used to overload these settings
@@ -58,20 +57,20 @@ async def main():
             DeepgramTranscriberConfig.from_input_device(
                 microphone_input,
                 endpointing_config=PunctuationEndpointingConfig(),
-                api_key=settings.deepgram_api_key,
+                api_key=getenv('DEEPGRAM_API_KEY'),
             ),
         ),
         agent=ChatGPTAgent(
             ChatGPTAgentConfig(
-                openai_api_key=settings.openai_api_key,
-                initial_message=BaseMessage(text="What up"),
+                openai_api_key=getenv('OPENAI_API_KEY'),
+                model_name="gpt-3.5-turbo",
+                base_url_override="https://api.chatanywhere.tech/v1",
+                initial_message=BaseMessage(text="What up, bro, I'm having a conversation about life"),
                 prompt_preamble="""The AI is having a pleasant conversation about life""",
             )
         ),
-        synthesizer=AzureSynthesizer(
-            AzureSynthesizerConfig.from_output_device(speaker_output),
-            azure_speech_key=settings.azure_speech_key,
-            azure_speech_region=settings.azure_speech_region,
+        synthesizer=RimeSynthesizer(
+            RimeSynthesizerConfig.from_output_device(speaker_output),
         ),
     )
     await conversation.start()

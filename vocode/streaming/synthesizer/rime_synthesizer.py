@@ -17,7 +17,8 @@ from vocode.streaming.models.synthesizer import (
     RimeSynthesizerConfig,
 )
 from vocode.streaming.synthesizer.base_synthesizer import BaseSynthesizer, SynthesisResult
-
+from dotenv import load_dotenv
+load_dotenv()
 # TODO: [OSS] Remove call to internal library with Synthesizers refactor
 
 # https://rime.ai/docs/quickstart

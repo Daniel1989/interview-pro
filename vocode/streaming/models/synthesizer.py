@@ -138,8 +138,8 @@ class ElevenLabsSynthesizerConfig(
 
 
 RIME_DEFAULT_BASE_URL = "https://users.rime.ai/v1/rime-tts"
-RIME_DEFAULT_MODEL_ID = None
-RIME_DEFAULT_SPEAKER = "young_male_unmarked-1"
+RIME_DEFAULT_MODEL_ID = "mist"
+RIME_DEFAULT_SPEAKER = "Hank"
 RIME_DEFAULT_SPEED_ALPHA = 1.0
 RIME_DEFAULT_SAMPLE_RATE = SamplingRate.RATE_22050
 RIME_DEFAULT_REDUCE_LATENCY = False
